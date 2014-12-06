@@ -1,4 +1,4 @@
-package edu.nlp.finalproj;
+package edu.finalproj;
 
 /**
  * Created by Alex Melville on 12/1/14.

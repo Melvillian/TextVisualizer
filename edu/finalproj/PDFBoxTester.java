@@ -1,4 +1,4 @@
-package edu.nlp.finalproj;
+package edu.finalproj;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
