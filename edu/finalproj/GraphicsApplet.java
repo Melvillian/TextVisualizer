@@ -48,10 +48,12 @@ public class GraphicsApplet extends JPanel implements ActionListener {
 	RepaintManager painter;
 	
 	public GraphicsApplet(){
+        this.wordnet = new WordNet("SentiWordNet.txt");
 		this.display();
 	};
 	
 	public GraphicsApplet(WordNet wn){
+		this.wordnet = wn;
 		this.display();
 	}
 	
@@ -174,29 +176,45 @@ public class GraphicsApplet extends JPanel implements ActionListener {
 	            stripper.setStartPage(curPage);
 	            stripper.setEndPage(curPage);
 	
-	            String[] page = stripper.getText(book).split(" ");
+	            String[] page = stripper.getText(book).split("[^A-Za-z]+");
+	            
 				pageGrain = page.length;
-				int yShift = maxY/pageGrain+1; // by the book/page granularity, offset by one for int division.
-
-				while (curWord < pageGrain){
-					int[] xs = {curX, curX, curX+xShift, curX+xShift}; 
-					int[] ys = {curY, curY+yShift,curY+yShift, curY};
-					
-					Float zero = new Float(0.0);
-					if ( genType.equals(stemStr)){
-						//double[] colors = wordnet.getColors();
-						canvas.setColor(new Color(zero, rand.nextFloat(), zero));
-					} else if (genType.equals(etyStr)){
-						canvas.setColor(new Color(zero,  zero, rand.nextFloat()));
-					} else { //if genType.equals(Sentiment){ 
-						canvas.setColor(new Color(rand.nextFloat(), zero,zero));
-					}
-					canvas.fillPolygon(xs, ys, 4);
-					curY+=yShift+1;
-					//curWord += 1;
+				if (pageGrain != 0){
+					int yShift = maxY/pageGrain+1; // by the book/page granularity, offset by one for int division.
+	
+					while (curWord < pageGrain - 4 ){
+						int[] xs = {curX, curX, curX+xShift, curX+xShift}; 
+						int[] ys = {curY, curY+yShift,curY+yShift, curY};
+						
+							SentiWord wordColor = wordnet.test(page[curWord], page[curWord+1], 
+																page[curWord+2], page[curWord+3]);
+							curWord += wordColor.getWC();
+							double[] colors = wordColor.get();
+						if ( genType.equals(stemStr)){
+							canvas.setColor(new Color( (float)0.0, (float)colors[0], (float)colors[1]));
+						} else if (genType.equals(etyStr)){
+							canvas.setColor(new Color( (float)colors[0], (float)colors[1], (float)0.0));
+						} else { //if genType.equals(Sentiment){ 
+							float neg = (float)colors[1];
+							float pos = (float)colors[0];
+							float abs = Math.abs(neg+pos);
+							neg = neg/abs;
+							pos = pos/abs; 
+							if (neg > pos){
+								canvas.setColor(new Color( 0.5f, 0.5f*(1-neg), 0.5f*(1-neg) ));
+							} else if (pos > neg ) {
+								canvas.setColor(new Color( 0.5f, 0.5f*(1+pos), 0.5f*(1+pos) ));
+							} else {
+								canvas.setColor(new Color( 0.5f, 0.5f, 0.5f));
+							}
+						
+						}
+						canvas.fillPolygon(xs, ys, 4);
+						curY+=yShift;
+					};
 				};
 			} catch (IOException e) { e.printStackTrace(); }
-			curX+=xShift+1;
+			curX+=xShift;
 			curPage+=1;
 		};
 		
@@ -207,7 +225,7 @@ public class GraphicsApplet extends JPanel implements ActionListener {
 	public static void main(String[] args){
 
 		JFrame application = new JFrame("TextTisualizer");
-		application.setResizable(false);
+		//application.setResizable(false);
 		application.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		
