@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
+import java.util.ArrayList;
 
 /**
  * This class exists simply to play around with Java's 2DGraphics library
@@ -37,15 +38,22 @@ public class GraphicsApplet extends JPanel implements ActionListener {
 	
 	int pageGrain = 500; //specifies how many expected words per page
 	int bookGrain = 1000; //specifies how many expected pages per book
+
+	int posCount = 0;
+	int negCount = 0;
 	
 	//These dont' have to be variables, but it makes the communication
 	// easier than using tags on objects in the container....
 	String fileName;
 	String genType;
+	String gramType = "page"; // I still need to make a radio button for this.
 	JButton but_run;
 	JTextField source;
 	JPanel paint;
 	RepaintManager painter;
+	
+	
+	
 	
 	public GraphicsApplet(){
         this.wordnet = new WordNet("SentiWordNet.txt");
@@ -149,6 +157,9 @@ public class GraphicsApplet extends JPanel implements ActionListener {
 			// Call main implementation
 			// and make sure there or here we catch for file errors!
 			paintBook(paint);
+			try{
+				book.close();
+			} catch (IOException e){};
 		}
  
 	}
@@ -180,21 +191,54 @@ public class GraphicsApplet extends JPanel implements ActionListener {
 	            
 				pageGrain = page.length;
 				if (pageGrain != 0){
-					int yShift = maxY/pageGrain+1; // by the book/page granularity, offset by one for int division.
-	
-					while (curWord < pageGrain - 4 ){
+					
+					if (gramType.equals("ngram")){
+						//If we're using ngram based granularity 
+						int yShift = maxY/pageGrain+1; // by the book/page granularity, offset by one for int division.
+						while (curWord < pageGrain - 4 ){
+							int[] xs = {curX, curX, curX+xShift, curX+xShift}; 
+							int[] ys = {curY, curY+yShift,curY+yShift, curY};
+							
+								SentiWord wordColor = wordnet.test(page[curWord], page[curWord+1], 
+																	page[curWord+2], page[curWord+3]);
+								curWord += wordColor.getWC();
+								double[] colors = wordColor.get();
+							if ( genType.equals(stemStr)){
+								canvas.setColor(new Color( (float)0.0, (float)colors[0], (float)colors[1]));
+							} else if (genType.equals(etyStr)){
+								canvas.setColor(new Color( (float)colors[0], (float)colors[1], (float)0.0));
+							} else { //if genType.equals(Sentiment){ 
+								float neg = (float)colors[1];
+								float pos = (float)colors[0];
+								float abs = Math.abs(neg+pos);
+								neg = neg/abs;
+								pos = pos/abs; 
+								if (neg > pos){
+									canvas.setColor(new Color( 0.5f, 0.5f*(1-neg), 0.5f*(1-neg) ));
+									negCount++;
+								} else if (pos > neg ) {
+									canvas.setColor(new Color( 0.5f, 0.5f*(1+pos), 0.5f*(1+pos) ));
+									posCount++;
+								} else {
+									canvas.setColor(new Color( 0.5f, 0.5f, 0.5f));
+								}
+							
+							}
+							canvas.fillPolygon(xs, ys, 4);
+							curY+=yShift;
+						};
+					} else { //if page-based granularity
+						double[] colors = {0.0, 0.0};
 						int[] xs = {curX, curX, curX+xShift, curX+xShift}; 
-						int[] ys = {curY, curY+yShift,curY+yShift, curY};
-						
-							SentiWord wordColor = wordnet.test(page[curWord], page[curWord+1], 
-																page[curWord+2], page[curWord+3]);
-							curWord += wordColor.getWC();
-							double[] colors = wordColor.get();
-						if ( genType.equals(stemStr)){
-							canvas.setColor(new Color( (float)0.0, (float)colors[0], (float)colors[1]));
-						} else if (genType.equals(etyStr)){
-							canvas.setColor(new Color( (float)colors[0], (float)colors[1], (float)0.0));
-						} else { //if genType.equals(Sentiment){ 
+						int[] ys = {curY, maxY, maxY, curY};
+						while (curWord < pageGrain - 4  ){
+								SentiWord wordColor = wordnet.test(page[curWord], page[curWord+1], 
+																	page[curWord+2], page[curWord+3]);
+								curWord += wordColor.getWC();
+								double[] newcolors = wordColor.get();
+								colors[0] += newcolors[0];
+								colors[1] += newcolors[1];
+							}
 							float neg = (float)colors[1];
 							float pos = (float)colors[0];
 							float abs = Math.abs(neg+pos);
@@ -202,22 +246,25 @@ public class GraphicsApplet extends JPanel implements ActionListener {
 							pos = pos/abs; 
 							if (neg > pos){
 								canvas.setColor(new Color( 0.5f, 0.5f*(1-neg), 0.5f*(1-neg) ));
+								negCount++;
 							} else if (pos > neg ) {
 								canvas.setColor(new Color( 0.5f, 0.5f*(1+pos), 0.5f*(1+pos) ));
+								posCount++;
 							} else {
 								canvas.setColor(new Color( 0.5f, 0.5f, 0.5f));
 							}
+							canvas.fillPolygon(xs, ys, 4);
 						
-						}
-						canvas.fillPolygon(xs, ys, 4);
-						curY+=yShift;
 					};
 				};
 			} catch (IOException e) { e.printStackTrace(); }
 			curX+=xShift;
 			curPage+=1;
 		};
-		
+
+		System.out.printf("Using the method %s, the following counts were found:\n", gramType);
+		System.out.printf("Positive Blocks (Blue): %d\n", posCount);
+		System.out.printf("Negative Blocks (Red): %d\n", negCount);
 		
 		
 	}
