@@ -65,19 +65,6 @@ public class WordNet {
     }
 
     /**
-     * Returns a list with 2 elements, the first the positive value for the given phrase
-     * and the second the negative value for the given phrase
-     * @param word1
-     * @param word2
-     * @param word3
-     * @param word4
-     * @return
-     */
-    public ArrayList<Double> getPosNegValues(String word1, String word2, String word3, String word4) {
-        return this.sentimentMap.get(word1, word2, word3, word4);
-    }
-
-    /**
      * Helper method to print a String array
      *
      * @param splitWord
@@ -153,7 +140,7 @@ public class WordNet {
      * SentiMap stores a quadruple nested HashMap, each level of the HashMap contains a word as a key and a deeper HashMap
      * as its value, until the 4th level at last stores the SentiWord. The idea behind this data structure is that TextVisualizer
      * will traverse through a PDF at most 4 words per iteration, looking for those 4 consecutive words in the Wordnet database. If
-     * a phrase will all 4 consecutive words exists, it returns the sentiment value for that phrase and increments the global traversal
+     * a phrase with all 4 consecutive words exists, it returns the sentiment value for that phrase and increments the global traversal
      * counter by 4. If only i words of the phrase exist, where 1 <= i <= 3, then the sentiment value of those i words of the phrase
      * are returned and the counter is incremented by i. If no phrase is found we treat the sentiment as 0.
      **/
@@ -165,7 +152,7 @@ public class WordNet {
         }
 
 
-        /**
+       /**
          * returns the SentiWord for a given depth of word. We always pass
          * in 4 words and we let the function decide how to increase the cnt
          *
@@ -175,50 +162,76 @@ public class WordNet {
          * @param word4
          * @return
          */
-        public ArrayList<Double> get(String word1, String word2, String word3, String word4) {
+        public SentiWord get(String word1, String word2, String word3, String word4) {
+        	SentiWord se = new SentiWord(0.0 ,0.0, 1);
             if (sentiMap.containsKey(word1)) {
                 if (sentiMap.get(word1).containsKey(word2)) {
                     if (sentiMap.get(word1).get(word2).containsKey(word3)) {
                         if (sentiMap.get(word1).get(word2).get(word3).containsKey(word4)) {
-                            cnt += 4;
-                            SentiWord sw = sentiMap.get(word1).get(word2).get(word3).get(word4);
-                            ArrayList<Double> posNegVals = sw.get();
-                            sentiMap.get(word1).get(word2).get(word3).put(word4, sw);
-                            return posNegVals;
+                            se = sentiMap.get(word1).get(word2).get(word3).get(word4);
                         } else {
-                            cnt += 3;
-                            SentiWord sw = sentiMap.get(word1).get(word2).get(word3).get("");
-                            ArrayList<Double> posNegVals = sw.get();
-                            sentiMap.get(word1).get(word2).get(word3).put("", sw);
-                            return posNegVals;
+                        	if (sentiMap.get(word1).get(word2).get(word3).containsKey("")){
+                        		se = sentiMap.get(word1).get(word2).get(word3).get("");
+                        	}
                         }
                     } else {
-                        cnt += 2;
-                        SentiWord sw = sentiMap.get(word1).get(word2).get("").get("");
-                        ArrayList<Double> posNegVals = sw.get();
-                        sentiMap.get(word1).get(word2).get("").put("", sw);
-                        return posNegVals;
+                      	if (sentiMap.get(word1).get(word2).containsKey("")){
+                            if (sentiMap.get(word1).get(word2).get("").containsKey("")){
+                            	se = sentiMap.get(word1).get(word2).get("").get("");
+                            }
+                    	}
                     }
 
                 } else {
-                    cnt++;
-                    HashMap<String, HashMap<String, HashMap<String, SentiWord>>> test = sentiMap.get(word1);
-                    HashMap<String, HashMap<String, SentiWord>> testinner = sentiMap.get(word1).get("");
-                    HashMap<String, SentiWord> testinnerinner = sentiMap.get(word1).get("").get("");
-                    SentiWord sw = sentiMap.get(word1).get("").get("").get("");
-                    ArrayList<Double> posNegVals = sw.get();
-                    sentiMap.get(word1).get("").get("").put("", sw);
-                    return posNegVals;
+                	if (sentiMap.get(word1).containsKey("")){
+	                	if (sentiMap.get(word1).get("").containsKey("")){
+		                    if (sentiMap.get(word1).get("").get("").containsKey("")){
+		                    	se = sentiMap.get(word1).get("").get("").get("");
+		                    }
+	                	}
+                	}
                 }
-            } else {
-                cnt++;
-                ArrayList<Double> tuple = new ArrayList<Double>();
-                tuple.add(0.0);
-                tuple.add(0.0);
-                return tuple;
             }
+            return se;
         }
 
+        /**
+         * returns the SentiWord for a given depth of word. We always pass
+         * in 4 words and we let the function decide how to increase the cnt
+         * @return
+         */
+        public SentiWord get(String[] words) {
+        	SentiWord se = new SentiWord(0.0 ,0.0, 1);
+            if (sentiMap.containsKey(words[0])) {
+                if (sentiMap.get(words[0]).containsKey(words[1])) {
+                    if (sentiMap.get(words[0]).get(words[1]).containsKey(words[3])) {
+                        if (sentiMap.get(words[0]).get(words[1]).get(words[2]).containsKey(words[3])) {
+                            se = sentiMap.get(words[0]).get(words[1]).get(words[2]).get(words[3]);
+                        } else {
+                        	if (sentiMap.get(words[0]).get(words[1]).get(words[2]).containsKey("")){
+                        		se = sentiMap.get(words[0]).get(words[1]).get(words[2]).get("");
+                        	}
+                        }
+                    } else {
+                    	if (sentiMap.get(words[0]).get(words[1]).containsKey("")){
+                            if (sentiMap.get(words[0]).get(words[1]).get("").containsKey("")){
+                            	se = sentiMap.get(words[0]).get(words[1]).get("").get("");
+                            }
+                    	}
+                    }
+
+                } else {
+                	if (sentiMap.get(words[0]).containsKey("")){
+	                	if (sentiMap.get(words[0]).get("").containsKey("")){
+		                    if (sentiMap.get(words[0]).get("").get("").containsKey("")){
+		                    	se = sentiMap.get(words[0]).get("").get("").get("");
+		                    }
+	                	}
+                	}
+                }
+            }
+            return se;
+        }
 
         public void put(String word1, String word2, String word3, String word4, Double posVal, Double negVal) {
             SentiWord s = new SentiWord(posVal, negVal);
