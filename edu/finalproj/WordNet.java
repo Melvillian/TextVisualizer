@@ -147,7 +147,7 @@ public class WordNet {
     }
     
     public SentiWord test(String w1, String w2, String w3, String w4){
-    	return this.sentiMap.get(w1,w2,w3,w4);    	
+    	return this.sentimentMap.get(w1,w2,w3,w4);
     }
     
     /**
