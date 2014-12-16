@@ -1,19 +1,20 @@
 package edu.finalproj;
 
-import edu.finalproj.Tuple;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations.TreeAnnotation;
 import edu.stanford.nlp.util.CoreMap;
-
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
 
 
 /**
@@ -21,7 +22,8 @@ import java.util.*;
  */
 public class StanfordParser {
 
-    private static final int MAXDEPTH = 4;
+    private static final int MAXDEPTH = 3;  // we put MAXDEPTH 3, but this will cause us to get all POS's from
+                                            // a maximum depth of 4 as calculated in countParse()
 
     private StanfordCoreNLP pipeline;
     private static final HashSet<String> MISC = new HashSet<String>();
@@ -94,7 +96,31 @@ public class StanfordParser {
      * @return
      */
     private String getPOS(String label) {
-        if (MISC.contains(label)) {
+        if (ADJECT.contains(label)) {
+            return "ADJECT";
+        }
+
+        else if (DET.contains(label)) {
+            return "DET";
+        }
+
+        else if (PREP.contains(label)) {
+            return "PREP";
+        }
+
+        else if (NOUNS.contains(label)) {
+            return "NOUNS";
+        }
+
+        else if (VERBS.contains(label)) {
+            return "VERBS";
+        }
+
+        else if (ADVERBS.contains(label)) {
+            return "ADVERBS";
+        }
+
+        else {
             return "MISC";
         }
     }
@@ -111,15 +137,31 @@ public class StanfordParser {
      * @return
      */
     private ArrayList<Tuple> countParse(ParseTree tree, int depth) {
-        if (depth == MAXDEPTH) {  // we've reached the depth we're willing to go
-            ArrayList<Tuple> counts = new ArrayList<Tuple>();
+        ArrayList<Tuple> counts = new ArrayList<Tuple>();
+
+        if (tree.isTerminal()) {
+            String pos = getPOS(tree.getLabel());
+            Tuple tup = new Tuple(pos, 1);
+            counts.add(tup);
+            return counts;
+        }
+        else if (depth == MAXDEPTH) {  // we've reached the depth we're willing to go
             for (ParseTree subtree : tree.getChildren()) {
                 String label = subtree.getLabel();
-                int subtreeTermianls = subtree.getTerminalNum();
+                int subtreeTerminalNum = subtree.getTerminalNum();
                 String pos = getPOS(label);
-                Tuple tup = new Tuple()
-
+                Tuple tup = new Tuple(pos, subtreeTerminalNum);
+                counts.add(tup);
             }
+            return counts;
+        }
+        else { // we still need to traverse nodes
+            for (ParseTree subtree : tree.getChildren()) {
+                ArrayList<Tuple> subtreeTuples = countParse(subtree, depth + 1);
+                counts.addAll(subtreeTuples);
+            }
+
+            return counts;
         }
     }
 
@@ -129,23 +171,20 @@ public class StanfordParser {
      * @param text
      * @return
      */
-    private ArrayList<ArrayList<Tuple>> parseText(String text) {
+    public ArrayList<ArrayList<Tuple>> parseText(String text) {
         Annotation document = new Annotation(text);
         pipeline.annotate(document);
-        ArrayList<ArrayList<Tuple>> sentenceParses = new ArrayList<ArrayList<Tuple>>();
-
         List<CoreMap> sentences = document.get(SentencesAnnotation.class);
 
+        ArrayList<ArrayList<Tuple>> sentenceParses = new ArrayList<ArrayList<Tuple>>();
         for(CoreMap sentence: sentences) {
             // this is the parse tree of the current sentence
             Tree tree = sentence.get(TreeAnnotation.class);
 
             ParseTree ps = new ParseTree(tree.toString());
             ps = ps.getChild(0); // disregard root node, now root is S
-            ArrayList<Tuple> sentenceParse = new ArrayList<Tuple>();
+            sentenceParses.add(countParse(ps, 0));
 
-
-            System.out.println("PARSE TREE:\n" + tree + "\n");
         }
 
         return sentenceParses;
@@ -176,6 +215,8 @@ public class StanfordParser {
 
     public static void main(String[] args) {
         try {
+
+            StanfordParser sp = new StanfordParser();
             PDDocument book = PDDocument.load(new File("/Users/alex/Desktop/CodingFolder/workspace/NLP/pdfs/Dune.pdf"));
             PDFTextStripper stripper = new PDFTextStripper();
             stripper.setStartPage(2);
@@ -183,32 +224,7 @@ public class StanfordParser {
             String pageText = stripper.getText(book);
             System.out.println("TEXT:\n" + pageText + "\n");
 
-            Properties props = new Properties();
-            props.put("annotators", "tokenize, ssplit, parse");
-            long start = System.currentTimeMillis();
-            StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-            long firstEnd = System.currentTimeMillis();
-            System.out.println("pipeline took: " + String.valueOf(firstEnd - start));
 
-            // create an empty Annotation just with the given text
-            Annotation document = new Annotation(pageText);
-
-            // run all Annotators on this text
-            pipeline.annotate(document);
-            System.out.println("Done annotating first text");
-
-            // these are all the sentences in this document
-            // a CoreMap is essentially a Map that uses class objects as keys and has values with custom types
-            List<CoreMap> sentences = document.get(SentencesAnnotation.class);
-            System.out.println("got first sentencesannotation");
-
-            for(CoreMap sentence: sentences) {
-                // this is the parse tree of the current sentence
-                Tree tree = sentence.get(TreeAnnotation.class);
-                System.out.println(tree);
-                ParseTree ps = new ParseTree(tree.toString());
-
-            }
 
 
 
