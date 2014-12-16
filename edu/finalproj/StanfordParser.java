@@ -11,10 +11,7 @@ import org.apache.pdfbox.util.PDFTextStripper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 
 /**
@@ -22,8 +19,9 @@ import java.util.Properties;
  */
 public class StanfordParser {
 
+    private static final int MAXDEPTH = 4;
+
     private StanfordCoreNLP pipeline;
-    private final int MAXDEPTH = 4;
     private static final HashSet<String> MISC = new HashSet<String>();
     private static final HashSet<String> PREP = new HashSet<String>();
     private static final HashSet<String> DET = new HashSet<String>();
@@ -40,6 +38,9 @@ public class StanfordParser {
         initializeSets();
     }
 
+    /**
+     * Sets up the sets we'll use to check what POS type a given label is
+     */
     private void initializeSets() {
         MISC.add("CC");
         MISC.add("CD");
@@ -85,12 +86,48 @@ public class StanfordParser {
     }
 
     /**
+     * Given a label from a parsetree node, return which of our 7
+     * POS types it is a member of
+     * @param label
+     * @return
+     */
+    private String getPOS(String label) {
+        if (MISC.contains(label)) {
+            return "MISC";
+        }
+    }
+
+    /**
+     * Given a nested parse tree, return the counts of the 7 types of
+     * parts of speech at either the MAXDEPTH depth (where the root is defined
+     * as depth 0) or an earlier depth is the tree does not extend that far.
+     * Also we need to store the words that exist underneath each Tuple.
+     * The values are stored as a list of tuples in order to preserve the
+     * ordering of the POS's.
+     * @param tree
+     * @param depth
+     * @return
+     */
+    private ArrayList<Tuple> countParse(ParseTree tree, int depth) {
+        if (depth == MAXDEPTH) {  // we've reached the depth we're willing to go
+            ArrayList<Tuple> counts = new ArrayList<Tuple>();
+            for (ParseTree subtree : tree.getChildren()) {
+                String label = subtree.getLabel();
+                int subtreeTermianls = subtree.getTerminalNum();
+                String pos = getPOS(label);
+                Tuple tup = new Tuple()
+
+            }
+        }
+    }
+
+    /**
      * Given some page text, returns a list of lists, where the inner list
      * contains the tuple counts for the 7 parts of speech
      * @param text
      * @return
      */
-    public ArrayList<ArrayList<Tuple>> parseText(String text) {
+    private ArrayList<ArrayList<Tuple>> parseText(String text) {
         Annotation document = new Annotation(text);
         pipeline.annotate(document);
         ArrayList<ArrayList<Tuple>> sentenceParses = new ArrayList<ArrayList<Tuple>>();
@@ -100,14 +137,17 @@ public class StanfordParser {
         for(CoreMap sentence: sentences) {
             // this is the parse tree of the current sentence
             Tree tree = sentence.get(TreeAnnotation.class);
+            ParseTree ps = new ParseTree(tree.toString());
+            ps = ps.getChild(0); // disregard root node, now root is S
+            ArrayList<Tuple> sentenceParse = new ArrayList<Tuple>();
+
+
             System.out.println("PARSE TREE:\n" + tree + "\n");
         }
 
         return sentenceParses;
     }
 
-
-    private
 
     public static void main(String[] args) {
         try {
@@ -140,6 +180,7 @@ public class StanfordParser {
             for(CoreMap sentence: sentences) {
                 // this is the parse tree of the current sentence
                 Tree tree = sentence.get(TreeAnnotation.class);
+                System.out.println(tree);
                 ParseTree ps = new ParseTree(tree.toString());
 
             }
