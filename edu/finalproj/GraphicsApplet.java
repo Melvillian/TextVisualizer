@@ -68,13 +68,13 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 	
 	public GraphicsApplet(){
         this.wordnet = new WordNet("SentiWordNet.txt");
-        this.sp  = new StanfordParser();
+        this.sp  = new StanfordParser("parser");
 		this.display();
 	};
 	
 	public GraphicsApplet(WordNet wn){
 		this.wordnet = wn;
-		this.sp = new StanfordParser();
+		this.sp = new StanfordParser("parser");
 		this.display();
 	}
 	

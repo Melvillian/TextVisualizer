@@ -18,7 +18,7 @@ import java.util.Properties;
  */
 public class StanfordParser {
 
-    private static final int MAXDEPTH = 100;  // Maximum height to which we search for parts of speech in our parser.
+    private static final int MAXDEPTH = 10;  // Maximum height to which we search for parts of speech in our parser.
                                               // Increasing this number will create smaller vertical rectangles in the
                                               // visualizer.
 
@@ -32,11 +32,19 @@ public class StanfordParser {
     private static final HashSet<String> VERBS = new HashSet<String>();
 
 
-    StanfordParser() {
-        Properties props = new Properties();
-        props.put("annotators", "tokenize, ssplit, parse");
-        pipeline = new StanfordCoreNLP(props);
-        initializeSets();
+    StanfordParser(String parserType) {
+        if (parserType.equals("parser")) {
+            Properties props = new Properties();
+            props.put("annotators", "tokenize, ssplit, parse");
+            pipeline = new StanfordCoreNLP(props);
+            initializeSets();
+        }
+        else {
+            Properties props = new Properties();
+            props.put("annotators", "tokenize, ssplit");
+            pipeline = new StanfordCoreNLP(props);
+            initializeSets();
+        }
     }
 
     /**
@@ -191,15 +199,37 @@ public class StanfordParser {
             sentenceParses.add(countParse(ps, 0));
 
         }
-
         return sentenceParses;
+    }
+
+
+    /**
+     * Given a blob of text, it returns that blog of text split by sentence
+     * @param text
+     * @return
+     */
+    public static ArrayList<String> splitText(String text) {
+        StanfordParser spsplitter = new StanfordParser("sentence-splitter");
+        Annotation document = new Annotation(text);
+        spsplitter.pipeline.annotate(document);
+        List<CoreMap> sentences = document.get(SentencesAnnotation.class);
+
+        ArrayList<String> splitSentences = new ArrayList<String>();
+        for(CoreMap sent: sentences) {
+            // this is the parse tree of the current sentence
+            System.out.println(sent);
+            splitSentences.add(sent.toShorterString());
+
+        }
+
+        return splitSentences;
     }
 
 
     private void testParseText() {
         String TEXT = "A beginning is the time for taking the most delicate care that the balances are \n" +
                 "correct";
-        StanfordParser sp = new StanfordParser();
+        StanfordParser sp = new StanfordParser("parser");
         ArrayList<ArrayList<Tuple>> parsedText = sp.parseText(TEXT);
         assert parsedText.size() == 0; // should correspond to only 1 sentence
         ArrayList<Tuple> sentence = parsedText.get(0);
@@ -232,30 +262,35 @@ public class StanfordParser {
             System.out.println(tup.cnt);
             System.out.println(" ");
         }
+
+        StanfordParser spsplitter = new StanfordParser("sentence-splitter");
+        TEXT = "A beginning is the time for taking the most delicate care that the balances are correct. This every sister of the Bene Gesserit knows. To begin your study of the life of Muad'Dib, then, take care that you first place him in his time: born in the 57th year of the Padishah Emperor, Shaddam IV. And take the most special care that you locate Muad'Dib in his place: the planet Arrakis. Do not be deceived by the fact that he was born on Caladan and lived his first fifteen years there. Arrakis, the planet known as Dune, is forever his place.\n" +
+                "-from \"Manual of Muad'Dib\" by the Princess Irulan\n" +
+                "In the week before their departure to Arrakis, when all the final scurrying about had reached a nearly unbearable frenzy, an old crone came to visit the mother of the boy, Paul.\n" +
+                "It was a warm night at Castle Caladan, and the ancient pile of stone that had served the Atreides family as home for twenty-six generations bore that cooled-sweat feeling it acquired before a change in the weather.\n" +
+                "The old woman was let in by the side door down the vaulted passage by Paul's room and she was allowed a moment to peer in at him where he lay in his bed.\n" +
+                "By the half-light of a suspensor lamp, dimmed and hanging near the floor, the awakened boy could see a bulky female shape at his door, standing one step ahead of his mother. The old woman was a witch shadow -- hair like matted spiderwebs, hooded 'round darkness of features, eyes like glittering jewels.\n" +
+                "\"Is he not small for his age, Jessica?\" the old woman asked. Her voice wheezed and twanged like an untuned baliset.\n" +
+                "Paul's mother answered in her soft contralto: \"The Atreides are known to start late getting their growth, Your Reverence.\"\n" +
+                "\"So I've heard, so I've heard,\" wheezed the old woman. \"Yet he's already fifteen.\"\n" +
+                "    \"Yes, Your Reverence.\"\n" +
+                "\"He's awake and listening to us,\" said the old woman. \"Sly little rascal.\" She chuckled. \"But royalty has need of slyness. And if he's really the Kwisatz Haderach . . . well . . .\"\n" +
+                "Within the shadows of his bed, Paul held his eyes open to mere slits. Two bird-bright ovals -- the eyes of the old woman -- seemed to expand and glow as they stared into his.";
+        Annotation document = new Annotation(TEXT);
+        spsplitter.pipeline.annotate(document);
+        List<CoreMap> sentences = document.get(SentencesAnnotation.class);
+
+        ArrayList<ArrayList<Tuple>> sentenceParses = new ArrayList<ArrayList<Tuple>>();
+        for(CoreMap sent: sentences) {
+            // this is the parse tree of the current sentence
+            System.out.println(sent);
+
+        }
     }
 
 
     public static void main(String[] args) {
-        StanfordParser sp = new StanfordParser();
+        StanfordParser sp = new StanfordParser("parser");
         sp.testParseText();
-//        try {
-//
-//            StanfordParser sp = new StanfordParser();
-//            PDDocument book = PDDocument.load(new File("/Users/alex/Desktop/CodingFolder/workspace/NLP/pdfs/Dune.pdf"));
-//            PDFTextStripper stripper = new PDFTextStripper();
-//            stripper.setStartPage(2);
-//            stripper.setEndPage(3);
-//            String pageText = stripper.getText(book);
-//            System.out.println("TEXT:\n" + pageText + "\n");
-//            ArrayList<ArrayList<Tuple>> parsedText = sp.parseText(pageText);
-//            System.out.println(parsedText);
-//
-//
-//
-//
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
     }
 }
