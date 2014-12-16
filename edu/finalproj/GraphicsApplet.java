@@ -20,7 +20,6 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * This class exists simply to play around with Java's 2DGraphics library
@@ -140,9 +139,11 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 		JLabel l_red = new JLabel("Verbs");
 		l_red.setForeground(Color.RED);
 		label.add(l_red);
+		
 		JLabel l_green = new JLabel("Nouns");
 		l_green.setForeground(Color.GREEN);
 		label.add(l_green);
+		
 		JLabel l_magenta = new JLabel("Adverbs");
 		l_magenta.setForeground(Color.MAGENTA);
 		label.add(l_magenta);
@@ -286,7 +287,7 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 	        	for (Tuple phrase : senParse){
 	        		senLength+= phrase.getCnt();
 	        	}
-	        	int yShift = maxY/senLength;
+	        	int yShift = maxY/senLength+1;
 	        	int curY = 0;
 	        	
 	        	for (Tuple phrase : senParse){

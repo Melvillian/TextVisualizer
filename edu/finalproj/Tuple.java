@@ -40,13 +40,13 @@ public class Tuple {
     	else if (pos.equals("ADJECT")){
     		return Color.BLUE;
     	}
-    	else if (pos.equals("NOUN")){
+    	else if (pos.equals("NOUNS")){
     		return Color.GREEN;
     	}
-    	else if (pos.equals("ADVERB")){
+    	else if (pos.equals("ADVERBS")){
     		return  Color.MAGENTA;
     	}
-    	else if (pos.equals("VERB")){
+    	else if (pos.equals("VERBS")){
     		return  Color.RED;
     	}
     	else return Color.WHITE;
