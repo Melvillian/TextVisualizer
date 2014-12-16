@@ -6,11 +6,7 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations.TreeAnnotation;
 import edu.stanford.nlp.util.CoreMap;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.util.PDFTextStripper;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -191,23 +187,43 @@ public class StanfordParser {
     }
 
 
-    public static void main(String[] args) {
-        try {
-
-            StanfordParser sp = new StanfordParser();
-            PDDocument book = PDDocument.load(new File("/Users/alex/Desktop/CodingFolder/workspace/NLP/pdfs/Dune.pdf"));
-            PDFTextStripper stripper = new PDFTextStripper();
-            stripper.setStartPage(2);
-            stripper.setEndPage(3);
-            String pageText = stripper.getText(book);
-            System.out.println("TEXT:\n" + pageText + "\n");
-
-
-
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
+    private void testParseText() {
+        String TEXT = "A beginning is the time for taking the most delicate care that the balances are \n" +
+                "correct";
+        System.out.println(TEXT);
+        StanfordParser sp = new StanfordParser();
+        ArrayList<ArrayList<Tuple>> parsedText = sp.parseText(TEXT);
+        assert parsedText.size() == 0; // should correspond to only 1 sentence
+        ArrayList<Tuple> sentence = parsedText.get(0);
+        for (Tuple tup : sentence) {
+            System.out.println(tup.pos);
+            System.out.println(tup.cnt);
+            System.out.println(" ");
         }
+    }
+
+
+    public static void main(String[] args) {
+        StanfordParser sp = new StanfordParser();
+        sp.testParseText();
+//        try {
+//
+//            StanfordParser sp = new StanfordParser();
+//            PDDocument book = PDDocument.load(new File("/Users/alex/Desktop/CodingFolder/workspace/NLP/pdfs/Dune.pdf"));
+//            PDFTextStripper stripper = new PDFTextStripper();
+//            stripper.setStartPage(2);
+//            stripper.setEndPage(3);
+//            String pageText = stripper.getText(book);
+//            System.out.println("TEXT:\n" + pageText + "\n");
+//            ArrayList<ArrayList<Tuple>> parsedText = sp.parseText(pageText);
+//            System.out.println(parsedText);
+//
+//
+//
+//
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 }
