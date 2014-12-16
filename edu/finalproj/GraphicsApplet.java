@@ -251,8 +251,8 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 				paintPage(paint, 2, 3);
 			}
 			else if (flag_norm){
-				float[] minmax = analyzeBook();
-				paintBook(paint, minmax[0], minmax[1]);
+				float[] maxs = analyzeBook();
+				paintBook(paint, maxs[0], maxs[1]);
 			} else {
 				paintBook(paint, -1f, 1f);
 			};
@@ -306,9 +306,15 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 	        };
 		} catch (IOException e1) {};
 	};
-	
 
-	public void paintBook(JPanel panel, float min, float max){
+
+	/**
+	 * Draws
+	 * @param panel
+	 * @param maxPos
+	 * @param maxNeg
+	 */
+	public void paintBook(JPanel panel, float maxPos, float maxNeg){
 		Graphics canvas = panel.getGraphics();
 		canvas.setPaintMode();
 		
@@ -345,14 +351,14 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 																	page[curWord+2], page[curWord+3]);
 								curWord += wordColor.getWC();
 								double[] colors = wordColor.get();
-						//	if (genType.equals(sentimentStr)){ 
 								float neg = (float)colors[1];
 								float pos = (float)colors[0];
-								float val = (flag_norm) ? (pos-neg)/(2*(max-min)) : (pos-neg)/(2*(pos+neg)); //this scales according to worst and best we've seen. 
 								if (neg > pos){
+									float val = neg;
 									canvas.setColor(new Color( val, val, 0 ));
 									negCount++;
 								} else if (pos > neg ) {
+									float val = pos;
 									canvas.setColor(new Color( 0, val, val ));
 									posCount++;
 								} else {
@@ -380,10 +386,10 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 						
 						float val = (flag_norm) ? (pos-neg)/(2*(max-min)) : (pos-neg)/(2*(pos+neg)); //this scales according to worst and best we've seen. 
 							if (neg > pos){
-								canvas.setColor(new Color( val+0.5f, 0, 0 ));
+								canvas.setColor(new Color( val, 0, 0 ));
 								negCount++;
 							} else if (pos > neg ) {
-								canvas.setColor(new Color( 0, val+0.5f, val+0.5f));
+								canvas.setColor(new Color( 0, val, val));
 								posCount++;
 							} else {
 								canvas.setColor(new Color( 0.5f, 0.5f, 0.5f));
