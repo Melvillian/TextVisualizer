@@ -144,14 +144,19 @@ public class StanfordParser {
             return counts;
         }
         else if (depth == MAXDEPTH) {  // we've reached the depth we're willing to go
-            for (ParseTree subtree : tree.getChildren()) {
-                String label = subtree.getLabel();
-                int subtreeTerminalNum = subtree.getTerminalNum();
-                String pos = getPOS(label);
-                Tuple tup = new Tuple(pos, label, subtreeTerminalNum);
-                counts.add(tup);
+            if (tree.getLabel().equals("S") == false) { // if it's not a sentence
+                for (ParseTree subtree : tree.getChildren()) {
+                    String label = subtree.getLabel();
+                    int subtreeTerminalNum = subtree.getTerminalNum();
+                    String pos = getPOS(label);
+                    Tuple tup = new Tuple(pos, label, subtreeTerminalNum);
+                    counts.add(tup);
+                }
+                return counts;
+            } else { // if it is a sentence, continue parsing
+                return countParse(tree, 0);
+
             }
-            return counts;
         }
         else { // we still need to traverse nodes
             for (ParseTree subtree : tree.getChildren()) {
