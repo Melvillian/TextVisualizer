@@ -1,11 +1,13 @@
 package edu.finalproj;
 
+import edu.finalproj.Tuple;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations.TreeAnnotation;
 import edu.stanford.nlp.util.CoreMap;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
 
@@ -100,14 +102,34 @@ public class StanfordParser {
         for(CoreMap sentence: sentences) {
             // this is the parse tree of the current sentence
             Tree tree = sentence.get(TreeAnnotation.class);
-            System.out.println("PARSE TREE:\n" + tree + "\n");
+            sentenceParses.add(getConstituents(tree, 5));
         }
 
         return sentenceParses;
     }
+    
+    private ArrayList<Tuple> getConstituents(Tree tree, int depth){
+    	ArrayList<Tuple> ret = new ArrayList<Tuple>();
+    	int iter = tree.numChildren();
+    	ArrayList<Tree> treelist = (ArrayList<Tree>)tree.getChildrenAsList();
+    	while ((iter > 0) && (depth > 0)){
+    		Tree next = treelist.remove(0);
+    		if (!next.isLeaf()){ //we only add kids if kid exist.
+    			iter += next.numChildren();
+	    		ArrayList<Tree> subtrees = (ArrayList<Tree>) next.getChildrenAsList();
+	    		for (Tree branch : subtrees){
+	    			treelist.add(branch);
+	    		};
+    		};
+    		depth--;
+    	};
+    	for (Tree branch : treelist){
+    		Tuple tuple = new Tuple(branch.value(), branch.getLeaves().size());
+    		ret.add(tuple);
+    	}
+    	return ret;
+    }
 
-
-    private
 
     public static void main(String[] args) {
         try {

@@ -213,16 +213,12 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 			if (genType.equals(stemStr)){
 				paintPage(paint, 2, 3);
 			}
-			if (flag_norm){
+			else if (flag_norm){
 				float[] minmax = analyzeBook();
 				paintBook(paint, minmax[0], minmax[1]);
 			} else {
 				paintBook(paint, -1f, 1f);
 			};
-			
-			System.out.printf("Using the method %s, the following counts were found:\n", gramType);
-			System.out.printf("Positive Blocks (Blue): %d\n", posCount);
-			System.out.printf("Negative Blocks (Red): %d\n", negCount);
 			
 //			try{ //And, because of IO, we have to try to close the pdf. 
 //				book.close();
@@ -252,7 +248,11 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 			int curX = 0;
 			
 	        for (ArrayList<Tuple> senParse : pageParse){
-	        	int yShift = maxY/senParse.size();
+	        	int senLength = 0;
+	        	for (Tuple phrase : senParse){
+	        		senLength+= phrase.getCnt();
+	        	}
+	        	int yShift = maxY/senLength;
 	        	int curY = 0;
 	        	
 	        	for (Tuple phrase : senParse){
@@ -265,7 +265,7 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 					canvas.fillPolygon(xs, ys, 4);
 					curY+=wc;
 	        	};
-	        curX+=yShift; 
+	        curX+=xShift; 
 	        };
 		} catch (IOException e1) {};
 	};
@@ -358,7 +358,11 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 			} catch (IOException e) { e.printStackTrace(); }
 			curX+=xShift;
 			curPage+=1;
-		};		
+		};	
+
+		System.out.printf("Using the method %s, the following counts were found:\n", gramType);
+		System.out.printf("Positive Blocks (Blue): %d\n", posCount);
+		System.out.printf("Negative Blocks (Red): %d\n", negCount);
 	}
 	
 	public float[] analyzeBook(){
