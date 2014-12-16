@@ -243,7 +243,7 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 			negCount = 0;
 			posCount = 0;
 			if (genType.equals(stemStr)){
-				paintPage(paint, 2, 3);
+				paintPage(paint, 3, 4);
 			}
 			else {
 				float[] maxs = analyzeBook();
