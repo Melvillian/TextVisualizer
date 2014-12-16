@@ -6,24 +6,26 @@ package edu.finalproj;
  * Created by alex on 12/1/14.
  */
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.util.PDFTextStripper;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.util.PDFTextStripper;
-
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * This class exists simply to play around with Java's 2DGraphics library
- * so that eventually we'll be able to integrate it into the final project
+ * This is the top level class for Alex and Mari's NLP project. It provides a user interface to
+ * display the visualization of text data's parsing and basic positive/negative sentiment analysis
  */
 public class GraphicsApplet extends JPanel implements ActionListener, ItemListener, DocumentListener {
 		
@@ -399,11 +401,18 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 		System.out.printf("Positive Blocks (Blue): %d\n", posCount);
 		System.out.printf("Negative Blocks (Red): %d\n", negCount);
 	}
-	
+
+	/**
+	 * Used when normalized coloring is selected, and it will scan through the inputted
+	 * book calculating the max positive and negative values for the entire book. It returns
+	 * a float array with 2 elements, the first is the maximum positive value and the second
+	 * is the maximum negative value
+	 * @return
+	 */
 	public float[] analyzeBook(){
 		PDFTextStripper stripper;
-		float min = 0;
-		float max = 0;
+		float posMax = 0;
+		float negMax = 0;
 		
 		int curPage = 0;
 		while (curPage <= bookGrain){ //while on page i
@@ -422,26 +431,21 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 							
 							curWord+=wordColor.getWC();
 							double[] colors = wordColor.get();
-							double val = colors[0]-colors[1];
 							
-							if (val < min){ min = (float)val; }
-							if (val > max){ max = (float)val; }
+							if (colors[0] > posMax){ posMax = (float)colors[0]; }
+							if (colors[1] > negMax){ negMax = (float)colors[1]; }
 						};
 					} else {
 
-						double[] colors = {0.0, 0.0}; 
 						while (curWord < pageGrain - 4  ){
 							SentiWord wordColor = wordnet.test(page[curWord], page[curWord+1], 
 									page[curWord+2], page[curWord+3]);
 							
 							curWord+=wordColor.getWC();
-							double[] newcolors = wordColor.get();
-							colors[0] += newcolors[0];
-							colors[1] += newcolors[1];
+							double[] colors = wordColor.get();
+							if (colors[0] > posMax){ posMax = (float)colors[0]; }
+							if (colors[1] > negMax){ negMax = (float)colors[1]; }
 						};
-						double val = colors[0]-colors[1];
-						if (val < min){ min = (float)val; }
-						if (val > max){ max = (float)val; }
 					};
 						
 			} catch (IOException e){
@@ -449,12 +453,12 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 			};
 			curPage++;
 		};
-		return new float[]{min, max};
+		return new float[]{posMax, negMax};
 	}
 	
 	public static void main(String[] args){
 
-		JFrame application = new JFrame("TextTisualizer");
+		JFrame application = new JFrame("TextVisualizer");
 		//application.setResizable(false);
 		application.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		

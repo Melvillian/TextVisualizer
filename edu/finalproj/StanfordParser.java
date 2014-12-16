@@ -18,8 +18,9 @@ import java.util.Properties;
  */
 public class StanfordParser {
 
-    private static final int MAXDEPTH = 10;  // we put MAXDEPTH 3, but this will cause us to get all POS's from
-                                            // a maximum depth of 4 as calculated in countParse()
+    private static final int MAXDEPTH = 100;  // Maximum height to which we search for parts of speech in our parser.
+                                              // Increasing this number will create smaller vertical rectangles in the
+                                              // visualizer.
 
     private StanfordCoreNLP pipeline;
     private static final HashSet<String> MISC = new HashSet<String>();

@@ -55,7 +55,7 @@ public class SentiWord {
     }
 
     /**
-     * Returns an ArrayList with 2 elements. The first
+     * Returns an array with 2 elements. The first
      * is a positive SentiWord value and the second is
      * the negative SentiWord value
      * @return
