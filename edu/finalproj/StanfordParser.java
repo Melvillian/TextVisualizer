@@ -67,6 +67,7 @@ public class StanfordParser {
         ADJECT.add("JJ");
 
         NOUNS.add("NN");
+        NOUNS.add("NP");
         NOUNS.add("NNP");
         NOUNS.add("NNPS");
         NOUNS.add("NNS");
@@ -78,6 +79,7 @@ public class StanfordParser {
         ADVERBS.add("RB");
 
         VERBS.add("VB");
+        VERBS.add("VP");
         VERBS.add("VBD");
         VERBS.add("VBG");
         VERBS.add("VBN");
@@ -144,12 +146,12 @@ public class StanfordParser {
             return counts;
         }
         else if (depth == MAXDEPTH) {  // we've reached the depth we're willing to go
-            System.out.println("MAXDEPTH reached");
+           // System.out.println("MAXDEPTH reached");
             for (ParseTree subtree : tree.getChildren()) {
                 String label = subtree.getLabel();
                 int subtreeTerminalNum = subtree.getTerminalNum();
                 String pos = getPOS(label);
-                System.out.println("label: " + label + " pos: " + pos + " terminalNum: " + subtreeTerminalNum);
+               // System.out.println("label: " + label + " pos: " + pos + " terminalNum: " + subtreeTerminalNum);
                 Tuple tup = new Tuple(pos, label, subtreeTerminalNum);
                 counts.add(tup);
             }
