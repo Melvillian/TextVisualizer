@@ -137,19 +137,15 @@ public class StanfordParser {
 
         if (tree.childIsTerminal()) {
             String pos = getPOS(tree.getLabel());
-            System.out.println("TERMINAL reached");
-            System.out.println("label: " + tree.getLabel() + " pos: " + pos + " terminalNum: " + 1);
             Tuple tup = new Tuple(pos, tree.getLabel(), 1);
             counts.add(tup);
             return counts;
         }
         else if (depth == MAXDEPTH) {  // we've reached the depth we're willing to go
-            System.out.println("MAXDEPTH reached");
             for (ParseTree subtree : tree.getChildren()) {
                 String label = subtree.getLabel();
                 int subtreeTerminalNum = subtree.getTerminalNum();
                 String pos = getPOS(label);
-                System.out.println("label: " + label + " pos: " + pos + " terminalNum: " + subtreeTerminalNum);
                 Tuple tup = new Tuple(pos, label, subtreeTerminalNum);
                 counts.add(tup);
             }
