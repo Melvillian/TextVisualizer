@@ -281,7 +281,7 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 	        
 	        ArrayList< ArrayList<Tuple> > pageParse = sp.parseText(stripper.getText(book));
 
-			int xShift = maxX/pageParse.size(); //we define how large our bars are
+			int xShift = maxX/pageParse.size()+1; //we define how large our bars are
 			int curX = 0;
 			
 	        for (ArrayList<Tuple> senParse : pageParse){
@@ -289,7 +289,7 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 	        	for (Tuple phrase : senParse){
 	        		senLength+= phrase.getCnt();
 	        	}
-	        	int yShift = maxY/senLength+1;
+	        	int yShift = Math.round((float)maxY/senLength);
 	        	int curY = 0;
 	        	
 	        	for (Tuple phrase : senParse){
