@@ -33,7 +33,6 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 	
 	static String sentimentStr = "Good V. Bad";
 	static String stemStr = "Parsing";
-	static String normStr = "Use Normalized Coloring";
 	static String blockStr = "Use Word Precision";
 	static String runStr = "Run TextVisualizer";
 	static String loadStr = "Load Book";
@@ -56,7 +55,6 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 	
 	JCheckBox check_norm;
 	JCheckBox check_block;
-	boolean flag_norm;
 	boolean flag_block;
 	
 	JButton but_run;
@@ -99,7 +97,6 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 		
 		//We need to define two check boxes: one for globalized normalization
 		// and the other for determining page or ngram based images.
-		check_norm = new JCheckBox(normStr);
 		check_block = new JCheckBox(blockStr);
 		
 		// The image panel must be defined as well
@@ -131,7 +128,6 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 		sourcePanel.add(but_load);
 		
 		runPanel.add(check_block);
-		runPanel.add(check_norm);
 		runPanel.add(sourcePanel);
 
 		label = new JPanel();
@@ -182,16 +178,13 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 		but_load.addActionListener(this);
 		source.addActionListener(this);
 		
-		check_norm.addItemListener(this);
 		check_block.addItemListener(this);
 		}
 	
 	public void itemStateChanged(ItemEvent e){
 		Object source = e.getItemSelectable();
 		
-		if (source == check_norm){
-			flag_norm = (e.getStateChange() == ItemEvent.SELECTED) ? true : false;
-		} else if (source == check_block){
+		if (source == check_block){
 			flag_block = (e.getStateChange() == ItemEvent.SELECTED) ? true : false;
 		};
 	}
@@ -239,9 +232,11 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 		} else if (event.getActionCommand().equals(sentimentStr)){
 			genType = sentimentStr;
 			label.setVisible(false);
+			check_block.setEnabled(false);
 		} else if (event.getActionCommand().equals(stemStr)){
 			genType = stemStr;			
 			label.setVisible(true);
+			check_block.setEnabled(true);
 		//Then, if we trigger the run event, we should run!
 		} else if (event.getActionCommand().equals(runStr)){
 			
@@ -250,11 +245,9 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 			if (genType.equals(stemStr)){
 				paintPage(paint, 2, 3);
 			}
-			else if (flag_norm){
+			else {
 				float[] maxs = analyzeBook();
 				paintBook(paint, maxs[0], maxs[1]);
-			} else {
-				paintBook(paint, -1f, 1f);
 			};
 			
 //			try{ //And, because of IO, we have to try to close the pdf. 
@@ -354,11 +347,11 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 								float neg = (float)colors[1];
 								float pos = (float)colors[0];
 								if (neg > pos){
-									float val = neg;
+									float val = neg/maxNeg;
 									canvas.setColor(new Color( val, val, 0 ));
 									negCount++;
 								} else if (pos > neg ) {
-									float val = pos;
+									float val = pos/maxPos;
 									canvas.setColor(new Color( 0, val, val ));
 									posCount++;
 								} else {
@@ -372,24 +365,35 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 						double[] colors = {0.0, 0.0};
 						int[] xs = {curX, curX, curX+xShift, curX+xShift}; 
 						int[] ys = {curY, maxY, maxY, curY};
+						int seenPos = 0;
+						int seenNeg = 0;
 						while (curWord < pageGrain - 4  ){
 								SentiWord wordColor = wordnet.test(page[curWord], page[curWord+1], 
 																	page[curWord+2], page[curWord+3]);
 								curWord += wordColor.getWC();
 								double[] newcolors = wordColor.get();
 								colors[0] += newcolors[0];
+								if (newcolors[0] > 0){ 
+									seenPos++;
+								}
 								
 								colors[1] += newcolors[1];
-							}
-						float neg = (float)colors[1];
-						float pos = (float)colors[0];
+								if (newcolors[1] > 0){ 
+									seenNeg++;
+								}
+							};
+							
+						float neg = (float)colors[1]/seenNeg;
+						float pos = (float)colors[0]/seenPos;
 						
-						float val = (flag_norm) ? (pos-neg)/(2*(max-min)) : (pos-neg)/(2*(pos+neg)); //this scales according to worst and best we've seen. 
+						 //this scales according to worst and best we've seen. 
 							if (neg > pos){
+								float val = neg/maxNeg;
 								canvas.setColor(new Color( val, 0, 0 ));
 								negCount++;
 							} else if (pos > neg ) {
-								canvas.setColor(new Color( 0, val, val));
+								float val = pos/maxPos;
+								canvas.setColor(new Color( 0, val*.35f, val));
 								posCount++;
 							} else {
 								canvas.setColor(new Color( 0.5f, 0.5f, 0.5f));
