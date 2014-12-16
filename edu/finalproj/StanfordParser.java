@@ -220,6 +220,17 @@ public class StanfordParser {
             System.out.println(tup.cnt);
             System.out.println(" ");
         }
+
+        TEXT = "to begin your study of the life of Muad'Dib, then, take care that you first place him in his time: born in the 57th year of the Padishah Emperor, Shaddam IV";
+        parsedText = sp.parseText(TEXT);
+        assert parsedText.size() == 0; // should correspond to only 1 sentence
+        sentence = parsedText.get(0);
+        System.out.println(TEXT);
+        for (Tuple tup : sentence) {
+            System.out.println(tup.pos);
+            System.out.println(tup.cnt);
+            System.out.println(" ");
+        }
     }
 
 
