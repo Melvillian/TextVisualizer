@@ -1,8 +1,6 @@
 package edu.finalproj;
 
-import java.awt.Color;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.awt.*;
 
 
 /**
@@ -10,40 +8,13 @@ import java.util.HashSet;
  */
 public class Tuple {
     public String pos;
+    public String label;
     public int cnt;
     
 
-    public Tuple(String pos, int cnt) {
-    	char prefix = pos.charAt(0);
-    	switch (prefix){
-    		case 'V':
-    			pos = "VERB";
-    			break;
-    		case 'J':
-    			pos = "ADJECT";
-    			break;
-    		case 'R':
-    			pos = "ADVERB";
-    			break;
-    		case 'D':
-    			pos = "DET";
-    			break;
-    		case 'I': 
-    			pos = "PREP";
-    			break;
-    		case 'N':
-    			pos = "NOUN";
-    			break;
-    		case 'P':
-    			switch (pos.charAt(1)){
-    				case 'R': 
-    					pos = "NOUN";
-    			};
-    			break;
-    		default: pos = "MISC";
-    	};
-    	
+    public Tuple(String pos, String label, int cnt) {
         this.pos = pos;
+        this.label = label;
         this.cnt = cnt;
     }
     

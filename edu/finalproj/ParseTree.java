@@ -216,5 +216,19 @@ public class ParseTree {
             return sum;
         }
     }
+
+    /**
+     * Created for the purposes of parseText in StanfordParser
+     * @return
+     */
+    public boolean childIsTerminal() {
+        if (this.numChildren() == 1) {
+            if (this.getChild(0).isTerminal()) return true;
+            return false;
+        }
+        else {
+            return false;
+        }
+    }
 }
 

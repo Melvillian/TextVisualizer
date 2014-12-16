@@ -135,18 +135,22 @@ public class StanfordParser {
     private ArrayList<Tuple> countParse(ParseTree tree, int depth) {
         ArrayList<Tuple> counts = new ArrayList<Tuple>();
 
-        if (tree.isTerminal()) {
+        if (tree.childIsTerminal()) {
             String pos = getPOS(tree.getLabel());
-            Tuple tup = new Tuple(pos, 1);
+            System.out.println("TERMINAL reached");
+            System.out.println("label: " + tree.getLabel() + " pos: " + pos + " terminalNum: " + 1);
+            Tuple tup = new Tuple(pos, tree.getLabel(), 1);
             counts.add(tup);
             return counts;
         }
         else if (depth == MAXDEPTH) {  // we've reached the depth we're willing to go
+            System.out.println("MAXDEPTH reached");
             for (ParseTree subtree : tree.getChildren()) {
                 String label = subtree.getLabel();
                 int subtreeTerminalNum = subtree.getTerminalNum();
                 String pos = getPOS(label);
-                Tuple tup = new Tuple(pos, subtreeTerminalNum);
+                System.out.println("label: " + label + " pos: " + pos + " terminalNum: " + subtreeTerminalNum);
+                Tuple tup = new Tuple(pos, label, subtreeTerminalNum);
                 counts.add(tup);
             }
             return counts;
@@ -176,6 +180,7 @@ public class StanfordParser {
         for(CoreMap sentence: sentences) {
             // this is the parse tree of the current sentence
             Tree tree = sentence.get(TreeAnnotation.class);
+            System.out.println(tree);
 
             ParseTree ps = new ParseTree(tree.toString());
             ps = ps.getChild(0); // disregard root node, now root is S
@@ -190,11 +195,23 @@ public class StanfordParser {
     private void testParseText() {
         String TEXT = "A beginning is the time for taking the most delicate care that the balances are \n" +
                 "correct";
-        System.out.println(TEXT);
         StanfordParser sp = new StanfordParser();
         ArrayList<ArrayList<Tuple>> parsedText = sp.parseText(TEXT);
         assert parsedText.size() == 0; // should correspond to only 1 sentence
         ArrayList<Tuple> sentence = parsedText.get(0);
+        System.out.println(TEXT);
+        for (Tuple tup : sentence) {
+            System.out.println(tup.pos);
+            System.out.println(tup.cnt);
+            System.out.println(" ");
+        }
+
+
+        TEXT = "This every sister of the Bene Gesserit knows";
+        parsedText = sp.parseText(TEXT);
+        assert parsedText.size() == 0; // should correspond to only 1 sentence
+        sentence = parsedText.get(0);
+        System.out.println(TEXT);
         for (Tuple tup : sentence) {
             System.out.println(tup.pos);
             System.out.println(tup.cnt);
