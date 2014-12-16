@@ -189,28 +189,6 @@ public class StanfordParser {
 
         return sentenceParses;
     }
-    
-    private ArrayList<Tuple> getConstituents(Tree tree, int depth){
-    	ArrayList<Tuple> ret = new ArrayList<Tuple>();
-    	int iter = tree.numChildren();
-    	ArrayList<Tree> treelist = (ArrayList<Tree>)tree.getChildrenAsList();
-    	while ((iter > 0) && (depth > 0)){
-    		Tree next = treelist.remove(0);
-    		if (!next.isLeaf()){ //we only add kids if kid exist.
-    			iter += next.numChildren();
-	    		ArrayList<Tree> subtrees = (ArrayList<Tree>) next.getChildrenAsList();
-	    		for (Tree branch : subtrees){
-	    			treelist.add(branch);
-	    		};
-    		};
-    		depth--;
-    	};
-    	for (Tree branch : treelist){
-    		Tuple tuple = new Tuple(branch.value(), branch.getLeaves().size());
-    		ret.add(tuple);
-    	}
-    	return ret;
-    }
 
 
     public static void main(String[] args) {
