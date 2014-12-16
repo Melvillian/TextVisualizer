@@ -67,6 +67,7 @@ public class StanfordParser {
         ADJECT.add("JJ");
 
         NOUNS.add("NN");
+        NOUNS.add("NP");
         NOUNS.add("NNP");
         NOUNS.add("NNPS");
         NOUNS.add("NNS");
@@ -78,6 +79,7 @@ public class StanfordParser {
         ADVERBS.add("RB");
 
         VERBS.add("VB");
+        VERBS.add("VP");
         VERBS.add("VBD");
         VERBS.add("VBG");
         VERBS.add("VBN");
