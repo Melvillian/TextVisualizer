@@ -61,6 +61,7 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 	JButton but_run;
 	JTextField source;
 	JPanel paint;
+	JPanel label;
 	RepaintManager painter;
 	
 	
@@ -131,15 +132,46 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 		runPanel.add(check_block);
 		runPanel.add(check_norm);
 		runPanel.add(sourcePanel);
+
+		label = new JPanel();
+		JLabel l_blue = new JLabel("Adjectives");
+		l_blue.setForeground(Color.BLUE);
+		label.add(l_blue);
+		JLabel l_red = new JLabel("Verbs");
+		l_red.setForeground(Color.RED);
+		label.add(l_red);
+		JLabel l_green = new JLabel("Nouns");
+		l_green.setForeground(Color.GREEN);
+		label.add(l_green);
+		JLabel l_magenta = new JLabel("Adverbs");
+		l_magenta.setForeground(Color.MAGENTA);
+		label.add(l_magenta);
+		JLabel l_pink = new JLabel("Prepositions");
+		l_pink.setForeground(Color.PINK);
+		label.add(l_pink);
+		JLabel l_silver = new JLabel("Determinants");
+		l_silver.setForeground(Color.LIGHT_GRAY);
+		label.add(l_silver);
+		JLabel l_gray = new JLabel("Miscillaneous");
+		l_gray.setForeground(Color.GRAY);
+		label.add(l_gray);
+		JLabel l_white = new JLabel("Unknown");		
+		l_white.setForeground(Color.WHITE);
+		label.add(l_white);
 		
 		selectPanel.add(radioPanel);
 		selectPanel.add(sourcePanel);
 		selectPanel.add(runPanel);
 		selectPanel.add(but_run);
+		
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(label, BorderLayout.PAGE_START);
+		panel.add(selectPanel, BorderLayout.PAGE_END);
+		
 
-		this.setLayout(new GridLayout(2,1));
-		add(paint, BorderLayout.CENTER); // Puts the painting object at the top of our applet;
-		add(selectPanel, BorderLayout.PAGE_END);
+		this.setLayout(new BorderLayout());
+		add(paint, BorderLayout.PAGE_START); // Puts the painting object at the top of our applet;
+		add(panel, BorderLayout.PAGE_END);
 		
 		rad_goodbad.addActionListener(this);
 		rad_stem.addActionListener(this);
@@ -200,11 +232,13 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 	        	System.out.printf("Can't find file: %s.\n", fileName);
 	        };
 	        
-	    //These three handle the radio  button (for now).
+	    //These handle the radio  button (for now).
 		} else if (event.getActionCommand().equals(sentimentStr)){
 			genType = sentimentStr;
+			label.setVisible(false);
 		} else if (event.getActionCommand().equals(stemStr)){
 			genType = stemStr;			
+			label.setVisible(true);
 		//Then, if we trigger the run event, we should run!
 		} else if (event.getActionCommand().equals(runStr)){
 			
@@ -429,6 +463,5 @@ public class GraphicsApplet extends JPanel implements ActionListener, ItemListen
 		application.pack();
 
 		application.setVisible(true);
-		
 	}
 }
