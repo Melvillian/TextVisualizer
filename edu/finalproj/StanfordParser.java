@@ -15,6 +15,8 @@ import java.util.Properties;
 
 /**
  * Created by alex on 12/11/14.
+ *
+ * StanfordParser
  */
 public class StanfordParser {
 
@@ -203,27 +205,6 @@ public class StanfordParser {
     }
 
 
-    /**
-     * Given a blob of text, it returns that blog of text split by sentence
-     * @param text
-     * @return
-     */
-    public static ArrayList<String> splitText(String text) {
-        StanfordParser spsplitter = new StanfordParser("sentence-splitter");
-        Annotation document = new Annotation(text);
-        spsplitter.pipeline.annotate(document);
-        List<CoreMap> sentences = document.get(SentencesAnnotation.class);
-
-        ArrayList<String> splitSentences = new ArrayList<String>();
-        for(CoreMap sent: sentences) {
-            // this is the parse tree of the current sentence
-            System.out.println(sent);
-            splitSentences.add(sent.toShorterString());
-
-        }
-
-        return splitSentences;
-    }
 
 
     private void testParseText() {

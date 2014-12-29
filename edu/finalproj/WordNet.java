@@ -120,7 +120,7 @@ public class WordNet {
 
     /**
      * Helper method for displaying the pos/neg counts
-     * of all 4thLevel words from the Wordnet DB
+     * of all 4th Level words from the Wordnet DB
      */  
     private void test4thLevel() {
         for (Map.Entry<String, HashMap<String, HashMap<String, HashMap<String, SentiWord>>>> map2 : this.sentimentMap.sentiMap.entrySet()) {

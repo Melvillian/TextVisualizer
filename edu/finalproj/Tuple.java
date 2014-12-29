@@ -5,6 +5,10 @@ import java.awt.*;
 
 /**
  * Created by alex on 12/11/14.
+ *
+ * Tuple stores the part of speech (pos), color, and the index
+ * within a sentence of a word, and supplies getter methods for
+ * those data members
  */
 public class Tuple {
     public String pos;
