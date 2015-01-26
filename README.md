@@ -1,10 +1,17 @@
 # Visualizing PDF Sentiment #
 
-## How to Use TextVisualizer ##
+## How to Run TextVisualizer ##
 
-Include in your Classpath the libraries listed in the Java Dependencies section. Then
-run the 'TextVisualizer' file with between 1GB and 2GB of memory (the Stanford parser really likes its memory!).
-Next load a PDF using a path to a PDF file relative to the directory TextVisualizer was run from.
+Assuming you have an update to date version of maven installed on your machine, while in the top
+level directory run
+
+    mvn package
+
+Once the build has finished, run the following to start TextVisualizer
+
+    java -Xmx1G -cp target/textvisualizer-TextVisualizer.jar  edu.finalproj.TextVisualizer
+ 
+Place the PDF you would like to visualize in the "pdfs" directory, and then load the PDF by entering pdfs/name_of_pdf.
 Choose which type of visualization method you would like. Note that the Positive vs. Negative method
 takes around 10 seconds to run, while the Sentence Parsing method takes up to a minute to run.
 
@@ -28,12 +35,3 @@ types of visualizations:
   For each sentence in a page (by default the 2nd page) TextVisualizer paints the parse tree of
   the sentence using the parts of speech groups given in colored font. The idea behind this
   visualization method to let the user identify patterns in a text's syntactic structure.
-  
-
-
-### Java Dependencies ###
-
-* pdfbox = v1.8.7
-* fontbox = v1.8.7
-* commons-logging >= v1.1.3
-* stanford-corenlp = v3.4.1 (download at http://nlp.stanford.edu/software/stanford-corenlp-full-2014-08-27.zip)
