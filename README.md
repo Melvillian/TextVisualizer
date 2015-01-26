@@ -22,7 +22,7 @@ TextVisualizer is a Java applet that allows a user to select a PDF on their
 computer and visualize its contents. Thus far TextVisualizer performs two
 types of visualizations:
 
-* **Positive vs Negative**
+* **Positive vs Negative Sentiment**
 
   Using blue for positive and red for negative, each page in the PDF is mapped
   to a column in the visualizer. A page's sentiment is determined by summing the
@@ -31,8 +31,8 @@ types of visualizations:
   If "Use Normalized Sentiment Values" is checked, then every 4 words within a page will
   receive its own coloring, allowing the user to see a text's sentiment at a much higher granularity. 
 
-* **Sentence Parsing**
+* **Sentence Structure Parsing**
 
   For each sentence in a page (by default the 2nd page) TextVisualizer paints the parse tree of
   the sentence using the parts of speech groups given in colored font. The idea behind this
-  visualization method to let the user identify patterns in a text's syntactic structure.
+  visualization method is to let the user identify patterns in a text's syntactic structure.
