@@ -7,7 +7,8 @@ level directory run
 
     mvn package
 
-Once the build has finished, run the following to start TextVisualizer
+Note that it took 2 minutes on my Macbook 2009 to complete the build. Once the build has finished, 
+run the following line to start TextVisualizer
 
     java -Xmx1G -cp target/textvisualizer-TextVisualizer.jar  edu.finalproj.TextVisualizer
  
